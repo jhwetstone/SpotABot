@@ -25,8 +25,10 @@ list_genuine_users = []
 list_genuine_tweets = []
 for folder in genuine_account_folders:
     df_users = pd.read_csv(folder+'/users.csv',index_col='id');
+    df_users['source'] = folder; 
     list_genuine_users.append(df_users);
     df_tweets = pd.read_csv(folder+'/tweets.csv',index_col='id');
+    df_tweets['source'] = folder; 
     list_genuine_tweets.append(df_tweets);
 genuine_tweets = pd.concat(list_genuine_tweets)
 genuine_users = pd.concat(list_genuine_users)
@@ -35,8 +37,10 @@ list_bot_users = []
 list_bot_tweets = []
 for folder in bot_account_folders:
     df_users = pd.read_csv(folder+'/users.csv',index_col='id');
-    list_bot_users.append(df_users);
+    df_users['source'] = folder;
+    list_bot_users.append(df_users);    
     df_tweets = pd.read_csv(folder+'/tweets.csv',index_col='id');
+    df_tweets['source'] = folder;
     list_bot_tweets.append(df_tweets);
 bot_tweets = pd.concat(list_bot_tweets)
 bot_users = pd.concat(list_bot_users)
