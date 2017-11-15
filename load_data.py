@@ -48,6 +48,12 @@ bot_users.loc[~np.isfinite(bot_users['friend_follower_ratio']), 'friend_follower
 genuine_users['friend_follower_ratio'] = genuine_users['friends_count']/genuine_users['followers_count']
 genuine_users.loc[~np.isfinite(genuine_users['friend_follower_ratio']), 'friend_follower_ratio'] = np.nan
 
+## Add average-per-tweet information
+genuine_averages = genuine_tweets[['num_hashtags','reply_count','retweet_count','favorite_count','num_mentions','num_urls','user_id']].groupby('user_id').mean()
+bot_averages = bot_tweets[['num_hashtags','reply_count','retweet_count','favorite_count','num_mentions','num_urls','user_id']].groupby('user_id').mean()
+bot_users = bot_users.join(bot_averages.add_suffix('_per_tweet'))
+genuine_users = genuine_users.join(genuine_averages.add_suffix('_per_tweet'))
+
 
 ## Delete empty values
 del bot_users['contributors_enabled'];
