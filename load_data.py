@@ -61,6 +61,24 @@ genuine_users = genuine_users.join(genuine_averages.add_suffix('_per_tweet'))
 genuine_users['unique_tweet_places'] = genuine_tweets.groupby('user_id').place.nunique()
 bot_users['unique_tweet_places'] = bot_tweets.groupby('user_id').place.nunique()
 
+## Update timestamp values to be datetime
+bot_tweets['timestamp_dt'] = pd.to_datetime(bot_tweets['timestamp'],format='%Y-%m-%d %H:%M:%S')
+genuine_tweets['timestamp_dt'] = pd.to_datetime(genuine_tweets['timestamp'],format='%Y-%m-%d %H:%M:%S')
+del bot_tweets['timestamp']
+del genuine_tweets['timestamp']
+
+## Add: Variance in the user's number of tweets per hour.
+genuine_tweets['date'] = genuine_tweets.timestamp_dt.dt.date
+genuine_tweets['hour'] = genuine_tweets.timestamp_dt.dt.hour
+variance_in_genuine_tweet_rate = genuine_tweets.groupby(['user_id','date','hour']).size().groupby('user_id').var()
+variance_in_genuine_tweet_rate.rename('variance_in_tweet_rate',inplace=True)
+genuine_users = genuine_users.join(variance_in_genuine_tweet_rate)
+bot_tweets['date'] = bot_tweets.timestamp_dt.dt.date
+bot_tweets['hour'] = bot_tweets.timestamp_dt.dt.hour
+variance_in_bot_tweet_rate = bot_tweets.groupby(['user_id','date','hour']).size().groupby('user_id').var()
+variance_in_bot_tweet_rate.rename('variance_in_tweet_rate',inplace=True)
+bot_users = bot_users.join(variance_in_bot_tweet_rate)
+
 ## Delete empty values
 del bot_users['contributors_enabled'];
 del bot_users['follow_request_sent'];
