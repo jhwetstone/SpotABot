@@ -50,10 +50,16 @@ genuine_users.loc[~np.isfinite(genuine_users['friend_follower_ratio']), 'friend_
 
 ## Add average-per-tweet information
 genuine_averages = genuine_tweets[['num_hashtags','reply_count','retweet_count','favorite_count','num_mentions','num_urls','user_id']].groupby('user_id').mean()
+## Reply count is sometimes blank -- replace with 0's
+genuine_averages['reply_count'] = genuine_averages['reply_count'].fillna(0)
 bot_averages = bot_tweets[['num_hashtags','reply_count','retweet_count','favorite_count','num_mentions','num_urls','user_id']].groupby('user_id').mean()
 bot_users = bot_users.join(bot_averages.add_suffix('_per_tweet'))
 genuine_users = genuine_users.join(genuine_averages.add_suffix('_per_tweet'))
 
+## Add number of unique places where the user has tweeted.  
+# This will be 0 if no places have ever been tagged
+genuine_users['unique_tweet_places'] = genuine_tweets.groupby('user_id').place.nunique()
+bot_users['unique_tweet_places'] = bot_tweets.groupby('user_id').place.nunique()
 
 ## Delete empty values
 del bot_users['contributors_enabled'];
@@ -69,3 +75,14 @@ del genuine_users['following'];
 del genuine_users['notifications'];
 del genuine_users['test_set_1'];
 del genuine_users['test_set_2'];
+
+## Delete empty values
+del genuine_tweets['geo'];
+del genuine_tweets['contributors'];
+del genuine_tweets['favorited'];
+del genuine_tweets['retweeted'];
+
+del bot_tweets['geo'];
+del bot_tweets['contributors'];
+del bot_tweets['favorited'];
+del bot_tweets['retweeted'];
