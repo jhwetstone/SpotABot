@@ -96,12 +96,17 @@ variance_in_bot_tweet_rate = tweets.groupby(['user_id','date','hour']).size().gr
 variance_in_bot_tweet_rate.rename('variance_in_tweet_rate',inplace=True)
 users = users.join(variance_in_bot_tweet_rate)
 
+
 ## Feature selection code should go here (slimming down the users tables)
 X = users[['favourites_count','followers_count','friends_count','verified','friend_follower_ratio','num_hashtags_per_tweet','reply_count_per_tweet','retweet_count_per_tweet','favorite_count_per_tweet','num_mentions_per_tweet','num_urls_per_tweet','unique_tweet_places','variance_in_tweet_rate']]
 X['verified'] = X['verified'].fillna(0)
 ## Split data into train/dev/test 
-X_train, X_test, y_train, y_test = train_test_split(X, user_class, test_size=0.4)
+
+## Find location rid of null values
+iNotNull = pd.notnull(X).all(1).nonzero()[0]
+
+X_train, X_test, y_train, y_test = train_test_split(X.iloc[iNotNull], user_class.iloc[iNotNull], test_size=0.4)
 X_dev, X_test, y_dev, y_test = train_test_split(X_test, y_test, test_size=0.5)
 
 logistic = LogisticRegression()
-logistic.fit(X_train,y_train)
+fitter = logistic.fit(X_train,y_train)
