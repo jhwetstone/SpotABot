@@ -109,4 +109,9 @@ X_train, X_test, y_train, y_test = train_test_split(X.iloc[iNotNull], user_class
 X_dev, X_test, y_dev, y_test = train_test_split(X_test, y_test, test_size=0.5)
 
 logistic = LogisticRegression()
-fitter = logistic.fit(X_train,y_train)
+logisticModel = logistic.fit(X_train,y_train)
+
+
+coeffsOutput = pd.DataFrame({'Feature Name':list(X),'Coefficient':np.array(logisticModel.coef_[0])});
+coeffsOutput = coeffsOutput[['Feature Name','Coefficient']];
+coeffsOutput
