@@ -9,6 +9,7 @@ Created on Tue Nov 14 18:54:48 2017
 ## Initialization
 import numpy as np
 import pandas as pd
+from sklearn.model_selection import train_test_split
 
 ## Import datasets
 genuine_account_folders = ['cresci-2017/genuine_accounts.csv', 'cresci-2015/TFP.csv', 'cresci-2015/E13.csv']
@@ -108,3 +109,13 @@ del bot_tweets['geo'];
 del bot_tweets['contributors'];
 del bot_tweets['favorited'];
 del bot_tweets['retweeted'];
+
+## Feature selection code should go here (slimming down the users tables)
+
+## Split data into train/dev/test 
+
+X = pd.concat([bot_users,genuine_users])
+y = pd.concat([pd.DataFrame(np.ones(shape=(len(bot_users),1))),pd.DataFrame(np.zeros(shape=(len(genuine_users),1)))])
+y.rename(columns={0:'is_bot'},inplace=True);
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4)
+X_dev, X_test, y_dev, y_test = train_test_split(X_test, y_test, test_size=0.5)
