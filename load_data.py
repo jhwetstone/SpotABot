@@ -10,6 +10,8 @@ Created on Tue Nov 14 18:54:48 2017
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+
 
 ## Import datasets
 genuine_account_folders = ['cresci-2017/genuine_accounts.csv', 'cresci-2015/TFP.csv', 'cresci-2015/E13.csv']
@@ -48,6 +50,10 @@ bot_users = pd.concat(list_bot_users)
 
 users = pd.concat([bot_users,genuine_users])
 tweets = pd.concat([bot_tweets,genuine_tweets])
+
+# Remove users that have no associated tweets
+users = users[users.index.isin(tweets.set_index('user_id').index)]
+
 user_class = pd.concat([pd.DataFrame(np.ones(shape=(len(bot_users),1))),pd.DataFrame(np.zeros(shape=(len(genuine_users),1)))])
 user_class.rename(columns={0:'is_bot'},inplace=True);
 
@@ -63,7 +69,6 @@ del tweets['geo'];
 del tweets['contributors'];
 del tweets['favorited'];
 del tweets['retweeted'];
-
 
 ## Add friend-follower ratio as a feature
 users['friend_follower_ratio'] = users['friends_count']/users['followers_count']
@@ -98,3 +103,5 @@ X['verified'] = X['verified'].fillna(0)
 X_train, X_test, y_train, y_test = train_test_split(X, user_class, test_size=0.4)
 X_dev, X_test, y_dev, y_test = train_test_split(X_test, y_test, test_size=0.5)
 
+logistic = LogisticRegression()
+logistic.fit(X_train,y_train)
