@@ -1,13 +1,21 @@
 # SpotABot
 Code for CS 229 Project I Spot a Bot
 
-## Getting Started
+## Getting Started: Downloading Data
 1. Download cresci-2017.csv.zip
 1. Unzip each of the files into the SpotABot directory, in a folder labeled 'cresci-2017'
 1. Download cresci-2015.csv.zip
 1. Unzip each of the files into the SpotABot directory, in a folder labeled 'cresci-2015'
-1. Run load_data.py to load data into "genuine_tweets", "genuine_users", "bot_tweets", "bot_users"
 
+## Prepare Datasets: load_data.py
+1. Combines datasets, generate features, and saves into train/test/dev pickle files
+
+## Models & Analysis: analyze_data.py
+1. Loads train/test/dev datasets from pickle files and runs the following models:
+1. * Logistic regression
+1. * SVM with Gaussian Kernel
+
+## Data Documentation
 cresci-2015
 * Bot: INT, FSF, TWT
 * Not: TFP, E13

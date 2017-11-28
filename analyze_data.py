@@ -10,15 +10,20 @@ Created on Thu Nov 16 13:01:45 2017
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import pickle
 import seaborn as sns
 from sklearn import linear_model, decomposition, datasets
 from sklearn.svm import SVC
 from sklearn.pipeline import Pipeline
-from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.model_selection import GridSearchCV
 
-## Split data into train/dev/test 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4)
-X_dev, X_test, y_dev, y_test = train_test_split(X_test, y_test, test_size=0.5)
+## Load our test, train, dev objects
+X_train = pickle.load(open( "X_train.p", "rb" ))
+X_test = pickle.load(open( "X_test.p", "rb" ))
+X_dev = pickle.load(open( "X_dev.p", "rb" ))
+y_train = pickle.load(open( "y_train.p", "rb" ))
+y_test = pickle.load(open( "y_test.p", "rb" ))
+y_dev = pickle.load(open( "y_dev.p", "rb" ))
 
 ## Creation of model objects
 logistic = linear_model.LogisticRegression()

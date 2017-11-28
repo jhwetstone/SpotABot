@@ -9,8 +9,8 @@ Created on Tue Nov 14 18:54:48 2017
 ## Initialization
 import numpy as np
 import pandas as pd
+import pickle
 from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LogisticRegression
 
 
 ## Import datasets
@@ -105,13 +105,15 @@ X['verified'] = X['verified'].fillna(0)
 ## Find location rid of null values
 iNotNull = pd.notnull(X).all(1).nonzero()[0]
 
+## Split into Test, Train, Dev datasets
 X_train, X_test, y_train, y_test = train_test_split(X.iloc[iNotNull], user_class.iloc[iNotNull], test_size=0.4)
 X_dev, X_test, y_dev, y_test = train_test_split(X_test, y_test, test_size=0.5)
 
-logistic = LogisticRegression()
-logisticModel = logistic.fit(X_train,y_train)
+## Pickle our test, train, dev objects
+pickle.dump(X_train, open( "X_train.p", "wb" ))
+pickle.dump(X_test, open( "X_test.p", "wb" ))
+pickle.dump(X_dev, open( "X_dev.p", "wb" ))
+pickle.dump(y_train, open( "y_train.p", "wb" ))
+pickle.dump(y_test, open( "y_test.p", "wb" ))
+pickle.dump(y_dev, open( "y_dev.p", "wb" ))
 
-
-coeffsOutput = pd.DataFrame({'Feature Name':list(X),'Coefficient':np.array(logisticModel.coef_[0])});
-coeffsOutput = coeffsOutput[['Feature Name','Coefficient']];
-coeffsOutput
