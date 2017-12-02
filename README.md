@@ -8,9 +8,25 @@ Working Doc: https://docs.google.com/document/d/1zYeQP1R2YI-tIu8YIyi-dPNhKB_qhv_
 1. Unzip each of the files into the SpotABot directory, in a folder labeled 'cresci-2017'
 1. Download cresci-2015.csv.zip from https://botometer.iuni.iu.edu/bot-repository/datasets.html
 1. Unzip each of the files into the SpotABot directory, in a folder labeled 'cresci-2015'
+1. Download classification_processed.zip from http://www.cl.cam.ac.uk/~szuhg2/data.html
+1. Unzip into the SpotABot directory, in a folder labeled 'classification_processed'
 
-## Prepare Datasets: load_data.py
+## Prepare Datasets: 
+
+### Training data: load_data.py
 1. Combines datasets, generate features, and saves into train/test/dev pickle files
+
+### Test data: build_test_distribution.py
+For the test distribution, we use tweepy as a wrapper for the Twitter API.  
+1. Install Tweepy by running `pip install tweepy==3.5.0`
+1. In order to connect to the twitter API, you must get your own developer consumer key, consumer secret, access token, and access token secret from https://apps.twitter.com/
+1. Once you have them, create a settings.py file in the project directory, which should look like this:
+```
+consumer_key = "PASTED CONSUMER KEY HERE"
+consumer_secret = "PASTED CONSUMER SECRET HERE"
+access_token = "PASTED ACCESS TOKEN HERE"
+access_token_secret = "PASTED ACCESS TOKEN SECRET HERE"
+```
 
 ## Models & Analysis: analyze_data.py
 1. Loads train/test/dev datasets from pickle files and runs the following models:
