@@ -11,6 +11,7 @@ import tweepy
 import tweepy_utils
 import pickle
 import load_data
+import time
 
 
 
@@ -56,10 +57,10 @@ def downloadDatasets(y_z, devFlag=1):
     
     ## Use dev flag to restrict to twenty users for testing purposes
     if devFlag:
-        limit = 20
+        limit = 21
     else:
         limit = 100000
-    cursor = 0
+    cursor = 1
     
     ## FIRST: Download all user information for users who are still active on Twitter (accounts have not been deactivated or suspended)
     
@@ -93,18 +94,22 @@ def downloadDatasets(y_z, devFlag=1):
     
     test_users = pd.DataFrame(test_user_list)
     test_users.set_index('id',inplace=True)
+    print('Pickling test users')
+    pickle.dump(test_users, open( "test_users.p", "wb" ))   
     
     ## NEXT: Download tweets corresponding to the active users
     test_tweet_list = []
     tweet_columns = ['id','favorite_count','retweet_count','created_at','text']
     tweet_entities = ['hashtags','urls','user_mentions']
-    cursor = 0
+    cursor = 1
     for user_id in test_users.index:
-        print('Downloading tweets for user ',str(user_id))
         if cursor > limit:
             break
+        if cursor % 100 == 0:
+            print('Pickling tweet list - size: ' + str(len(test_tweet_list)))
+            pickle.dump(test_tweet_list, open( "test_tweet_list.p", "wb" ))
         try:
-            for status_info in tweepy.Cursor(api.user_timeline,id=user_id).items(1000):
+            for status_info in tweepy.Cursor(api.user_timeline, user_id=user_id, count=200).items(1000):
                 status_json = status_info._json
                 status_dict = {'user_id':user_id}
                 status_dict.update({'num_'+en: len(status_json['entities'][en]) for en in tweet_entities})
