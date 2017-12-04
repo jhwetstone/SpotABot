@@ -15,7 +15,7 @@ import time
 
 
 
-def loadTestData(path):
+def loadZafarTestData(path):
 
     filenames = os.listdir(path);
     popularity_class_dict = {'1k':1 ,'100k':2,'1M':3,'10M':4};
@@ -53,6 +53,18 @@ def loadTestData(path):
     
     return X, y
 
+def loadTestData(path):
+    
+    filename = 'varol-2017.dat'
+    df_file = pd.read_csv(filename, sep='\t',header = None)
+    
+    df_file.rename(columns={0: 'id', 1: 'is_bot'},inplace=True)
+    
+    df_file.set_index('id',inplace=True)
+    
+    return df_file
+    
+
 def downloadDatasets(y_z, devFlag=1):
     
     ## Use dev flag to restrict to twenty users for testing purposes
@@ -70,26 +82,25 @@ def downloadDatasets(y_z, devFlag=1):
     test_user_list = [];
     # is_active column keeps track of the users who are still active on twitter
     # adding the user's id field to have a consistent index
-    y = pd.DataFrame(y_z,columns=['is_bot','is_active','id'])
+    y = pd.DataFrame(y_z,columns=['is_bot','is_active'])
     api = tweepy_utils.connect_to_api()
-    for screen_name in y.index:
+    for user_id in y.index:
         if cursor > limit:
             break
         try:
-            user_info = api.get_user(screen_name=screen_name)
-            y.loc[screen_name,'is_active'] = 1
+            user_info = api.get_user(user_id=user_id)
+            y.loc[user_id,'is_active'] = 1
             user_json = user_info._json
-            y.loc[screen_name,'id'] = user_json['id']
             test_user_list.append({col: user_json[col] for col in user_columns})
             cursor += 1
         ## Catch errors
         except tweepy.TweepError as e:
             if e.api_code == 50 or e.api_code == 63:
-                y.loc[screen_name,'is_active'] = 0
+                y.loc[user_id,'is_active'] = 0
                 continue
             else:
                 print('Error: ' + str(e.api_code) + ' ' + e.reason )
-                y.loc[screen_name,'is_active'] = 0
+                y.loc[user_id,'is_active'] = 0
                 continue
     
     test_users = pd.DataFrame(test_user_list)
@@ -130,14 +141,13 @@ def downloadDatasets(y_z, devFlag=1):
 
 def main():
     path = 'classification_processed';
-    X_z, y_z = loadTestData(path)
-    test_users, test_tweets, y = downloadDatasets(y_z,devFlag=0)
+    y_z = loadTestData(path)
+    test_users, test_tweets, y = downloadDatasets(y_z,devFlag=1)
     # Remove users that have no associated tweets
     test_users = test_users[test_users.index.isin(test_tweets.set_index('user_id').index)]
     test_tweets.rename(columns={'num_user_mentions': 'num_mentions'},inplace=True)
     test_tweets['timestamp_dt'] = pd.to_datetime(test_tweets['created_at'],infer_datetime_format=True)
     X_test = load_data.buildDesignMatrix(test_users,test_tweets)
-    y.set_index('id',inplace=True)
     del y['is_active']
     y_test = y[y.index.isin(test_users.index)]
             
