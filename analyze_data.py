@@ -44,6 +44,9 @@ print( pd.DataFrame(data = [train_error,dev_error]
                     ,columns = ['Logistic Regression', 'Support Vector Machine'])
 )
 
+## Save our final model (For "check_screenname.py")
+pickle.dump(logistic,open("model.p","wb"))
+
 ### Print coefficients
 #coeffs = np.insert(logistic.coef_,0,logistic.intercept_)
 #print( pd.DataFrame(data = coeffs
