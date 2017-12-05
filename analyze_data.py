@@ -23,8 +23,8 @@ y_test = pickle.load(open( "y_test.p", "rb" ))
 y_dev = pickle.load(open( "y_dev.p", "rb" ))
 
 ## Creation of model objects
-logistic = linear_model.LogisticRegression()
-linear_svm = svm.LinearSVC();
+logistic = linear_model.LogisticRegression(C = 1)
+linear_svm = svm.LinearSVC(C = 1);
 gaussian_svm = svm.SVC()
 
 ## Application of fits (just two for now)
@@ -49,11 +49,11 @@ dev_precision = [precision_score(y_dev,y_dev_logistic),
                precision_score(y_dev,y_dev_linear_svm),
                precision_score(y_dev,y_dev_gaussian_svm)]
 
-## Training/dev errors
-train_error = [logistic.score(X_train,y_train),
+## Training/dev accuracies
+train_accuracy = [logistic.score(X_train,y_train),
                linear_svm.score(X_train,y_train),
                gaussian_svm.score(X_train,y_train)]
-dev_error = [logistic.score(X_dev,y_dev),
+dev_accuracy = [logistic.score(X_dev,y_dev),
              linear_svm.score(X_dev,y_dev),
              gaussian_svm.score(X_dev,y_dev)]
 
@@ -62,7 +62,7 @@ dev_error = [logistic.score(X_dev,y_dev),
 
 #)
 
-print( pd.DataFrame(data = [train_error,train_precision, dev_error, dev_precision]
+print( pd.DataFrame(data = [train_accuracy, train_precision, dev_accuracy, dev_precision]
                     ,index = ['Training Accuracy','Training Precision','Validation Accuracy','Validation Precision']
                     ,columns = ['Logistic Regression', 'Linear SVM', 'Gaussian SVM'])
 )    
