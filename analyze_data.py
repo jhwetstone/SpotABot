@@ -11,11 +11,8 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import pickle
-import seaborn as sns
-from sklearn import linear_model, decomposition, datasets
-from sklearn.svm import SVC
-from sklearn.pipeline import Pipeline
-from sklearn.model_selection import GridSearchCV
+from sklearn import linear_model, svm
+from sklearn.metrics import precision_score
 
 ## Load our test, train, dev objects
 X_train = pickle.load(open( "X_train.p", "rb" ))
@@ -27,22 +24,48 @@ y_dev = pickle.load(open( "y_dev.p", "rb" ))
 
 ## Creation of model objects
 logistic = linear_model.LogisticRegression()
-svm = SVC()
-pca = decomposition.PCA() # coming soon!
-pipe = Pipeline(steps=[('pca', pca), ('logistic', logistic)]) # coming soon!
+linear_svm = svm.LinearSVC();
+gaussian_svm = svm.SVC()
 
 ## Application of fits (just two for now)
 logistic.fit(np.asmatrix(X_train),np.ravel(y_train))
-svm.fit(np.asmatrix(X_train),np.ravel(y_train))
+linear_svm.fit(np.asmatrix(X_train),np.ravel(y_train))
+gaussian_svm.fit(np.asmatrix(X_train),np.ravel(y_train))
 
-## Print errors
-train_error = [logistic.score(X_train,y_train),svm.score(X_train,y_train)]
-dev_error = [logistic.score(X_dev,y_dev),svm.score(X_dev,y_dev)]
+## Predicted classifications
+y_train_logistic = logistic.predict(X_train);
+y_train_linear_svm = linear_svm.predict(X_train);
+y_train_gaussian_svm = gaussian_svm.predict(X_train);
+y_dev_logistic = logistic.predict(X_dev);
+y_dev_linear_svm = linear_svm.predict(X_dev);
+y_dev_gaussian_svm = gaussian_svm.predict(X_dev);
 
-print( pd.DataFrame(data = [train_error,dev_error]
-                    ,index = ['Training Error','Validation Error']
-                    ,columns = ['Logistic Regression', 'Support Vector Machine'])
-)
+## Precision score (true positives)
+train_precision = [precision_score(y_train,y_train_logistic),
+               precision_score(y_train,y_train_linear_svm),
+               precision_score(y_train,y_train_gaussian_svm)]
+
+dev_precision = [precision_score(y_dev,y_dev_logistic),
+               precision_score(y_dev,y_dev_linear_svm),
+               precision_score(y_dev,y_dev_gaussian_svm)]
+
+## Training/dev errors
+train_error = [logistic.score(X_train,y_train),
+               linear_svm.score(X_train,y_train),
+               gaussian_svm.score(X_train,y_train)]
+dev_error = [logistic.score(X_dev,y_dev),
+             linear_svm.score(X_dev,y_dev),
+             gaussian_svm.score(X_dev,y_dev)]
+
+
+
+
+#)
+
+print( pd.DataFrame(data = [train_error,train_precision, dev_error, dev_precision]
+                    ,index = ['Training Accuracy','Training Precision','Validation Accuracy','Validation Precision']
+                    ,columns = ['Logistic Regression', 'Linear SVM', 'Gaussian SVM'])
+)    
 
 ## Save our final model (For "check_screenname.py")
 pickle.dump(logistic,open("model.p","wb"))
@@ -56,39 +79,39 @@ pickle.dump(logistic,open("model.p","wb"))
 
 
 ## Some other really cool shit that isn't ready yet
-def scatter_x1x2(categ1, categ2):
-
-    X_pos = X_train.iloc[np.ravel(y_train == 1)]
-    x1_pos = X_pos[categ1]
-    x2_pos = X_pos[categ2]
-    X_neg = X_train.iloc[np.ravel(y_train == 0)]
-    x1_neg = X_neg[categ1]
-    x2_neg = X_neg[categ2]
-    
-    x1max = max(
-            np.concatenate(
-                    (np.ravel(x1_pos)
-                    ,np.ravel(x1_neg)
-            )
-        )   
-    )
-    
-    x2max = max(
-            np.concatenate(
-                    (np.ravel(x2_pos)
-                    ,np.ravel(x2_neg)
-            )
-        )   
-    )
-    
-    ax = plt.axis([0,x1max,0,x2max])
-    plt.scatter(x1_pos,x2_pos,marker='o',color='k',hold=True)
-    plt.scatter(x1_neg,x2_neg,marker='o',color='r',facecolors='none',hold=True)
-    
-    plt.xlabel(categ1)
-    plt.ylabel(categ2)
-    
-    return ax
+#def scatter_x1x2(categ1, categ2):
+#
+#    X_pos = X_train.iloc[np.ravel(y_train == 1)]
+#    x1_pos = X_pos[categ1]
+#    x2_pos = X_pos[categ2]
+#    X_neg = X_train.iloc[np.ravel(y_train == 0)]
+#    x1_neg = X_neg[categ1]
+#    x2_neg = X_neg[categ2]
+#    
+#    x1max = max(
+#            np.concatenate(
+#                    (np.ravel(x1_pos)
+#                    ,np.ravel(x1_neg)
+#            )
+#        )   
+#    )
+#    
+#    x2max = max(
+#            np.concatenate(
+#                    (np.ravel(x2_pos)
+#                    ,np.ravel(x2_neg)
+#            )
+#        )   
+#    )
+#    
+#    ax = plt.axis([0,x1max,0,x2max])
+#    plt.scatter(x1_pos,x2_pos,marker='o',color='k',hold=True)
+#    plt.scatter(x1_neg,x2_neg,marker='o',color='r',facecolors='none',hold=True)
+#    
+#    plt.xlabel(categ1)
+#    plt.ylabel(categ2)
+#    
+#    return ax
     
 #fig = plt.figure(figsize=(48,48));
 
@@ -127,29 +150,29 @@ def scatter_x1x2(categ1, categ2):
 #plt.legend(prop=dict(size=12))
 #plt.show()
 
-Xpos = X_train.iloc[np.ravel(y_train == 1)];
-Xneg = X_train.iloc[np.ravel(y_train == 0)];
-
-bins = np.linspace(0,2,25)
-fig1 = plt.figure(figsize = (6,6))
-ax1 = plt.subplot(111)
-plt.hist(Xpos['num_mentions_per_tweet'], bins, alpha=0.5, color = 'r', label='Bot', normed=1)
-plt.hist(Xneg['num_mentions_per_tweet'], bins, alpha=0.5, color = 'k', label='Genuine User', normed=1)
-plt.xlabel('Number of Mentions per Tweet')
-plt.ylabel('Count (Normalized)')
-x0,x1 = ax1.get_xlim()
-y0,y1 = ax1.get_ylim()
-ax1.set_aspect((x1-x0)/(y1-y0))
-plt.legend()
-
-fig2 = plt.figure(figsize = (6,6))
-ax2 = plt.subplot(111)
-plt.scatter(Xpos['retweet_count_per_tweet'],Xpos['favorite_count_per_tweet'],marker='o',color='r',hold=True, label='Bot')
-plt.scatter(Xneg['retweet_count_per_tweet'],Xneg['favorite_count_per_tweet'],marker='o',color='k',hold=True, label='Genuine User')
-plt.xlabel('Retweet Count Per Tweet')
-plt.ylabel('Favorite Count Per Tweet')
-x0,x1 = ax2.get_xlim()
-y0,y1 = ax2.get_ylim()
-ax2.set_aspect((x1-x0)/(y1-y0))
-plt.legend()
-
+#Xpos = X_train.iloc[np.ravel(y_train == 1)];
+#Xneg = X_train.iloc[np.ravel(y_train == 0)];
+#
+#bins = np.linspace(0,2,25)
+#fig1 = plt.figure(figsize = (6,6))
+#ax1 = plt.subplot(111)
+#plt.hist(Xpos['num_mentions_per_tweet'], bins, alpha=0.5, color = 'r', label='Bot', normed=1)
+#plt.hist(Xneg['num_mentions_per_tweet'], bins, alpha=0.5, color = 'k', label='Genuine User', normed=1)
+#plt.xlabel('Number of Mentions per Tweet')
+#plt.ylabel('Count (Normalized)')
+#x0,x1 = ax1.get_xlim()
+#y0,y1 = ax1.get_ylim()
+#ax1.set_aspect((x1-x0)/(y1-y0))
+#plt.legend()
+#
+#fig2 = plt.figure(figsize = (6,6))
+#ax2 = plt.subplot(111)
+#plt.scatter(Xpos['retweet_count_per_tweet'],Xpos['favorite_count_per_tweet'],marker='o',color='r',hold=True, label='Bot')
+#plt.scatter(Xneg['retweet_count_per_tweet'],Xneg['favorite_count_per_tweet'],marker='o',color='k',hold=True, label='Genuine User')
+#plt.xlabel('Retweet Count Per Tweet')
+#plt.ylabel('Favorite Count Per Tweet')
+#x0,x1 = ax2.get_xlim()
+#y0,y1 = ax2.get_ylim()
+#ax2.set_aspect((x1-x0)/(y1-y0))
+#plt.legend()
+#
