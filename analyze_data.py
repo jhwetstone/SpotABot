@@ -74,9 +74,6 @@ dev_error = [logistic.score(X_dev,y_dev),
              linear_svm.score(X_dev,y_dev),
              gaussian_svm.score(X_dev,y_dev)]
 
-
-
-
 #)
 
 print( pd.DataFrame(data = [train_error, train_precision, train_dev_error, train_dev_precision, dev_error, dev_precision]
@@ -89,10 +86,11 @@ pickle.dump(logistic,open("model.p","wb"))
 
 ### Print coefficients
 coeffs = np.insert(logistic.coef_,0,logistic.intercept_)
-print( pd.DataFrame(data = coeffs
+df = pd.DataFrame(data = coeffs
                     ,index = np.insert(X_train.columns,0,'intercept')
                     ,columns = ['logistic coefficients'])
-)
+df = df.reindex(df['logistic coefficients'].abs().sort_values().index)
+print(df)
 
 
 ## Some other really cool shit that isn't ready yet

@@ -11,6 +11,7 @@ import numpy as np
 import pandas as pd
 import pickle
 from sklearn.model_selection import train_test_split
+import build_design_matrix 
 
 def importDatasets():
     ## Import datasets
@@ -19,10 +20,10 @@ def importDatasets():
                              'cresci-2017/social_spambots_1.csv'
                             , 'cresci-2017/social_spambots_2.csv'
                             , 'cresci-2017/social_spambots_3.csv'
-                            , 'cresci-2017/traditional_spambots_1.csv'
-                            , 'cresci-2015/INT.csv'
-                            , 'cresci-2015/FSF.csv'
-                            , 'cresci-2015/TWT.csv']
+                            , 'cresci-2017/traditional_spambots_1.csv']
+                            #, 'cresci-2015/INT.csv'
+                            #, 'cresci-2015/FSF.csv'
+                            #, 'cresci-2015/TWT.csv']
     
     list_genuine_users = []
     list_genuine_tweets = []
@@ -51,11 +52,12 @@ def importDatasets():
     users = pd.concat([bot_users,genuine_users])
     tweets = pd.concat([bot_tweets,genuine_tweets])
 
-    # Remove users that have no associated tweets
-    users = users[users.index.isin(tweets.set_index('user_id').index)]
-
     user_class = pd.concat([pd.DataFrame(np.ones(shape=(len(bot_users),1))),pd.DataFrame(np.zeros(shape=(len(genuine_users),1)))])
     user_class.rename(columns={0:'is_bot'},inplace=True);
+
+    # Remove users that have no associated tweets
+    user_class = user_class[users.index.isin(tweets.set_index('user_id').index)]
+    users = users[users.index.isin(tweets.set_index('user_id').index)]
 
     ## Delete empty values
     del users['contributors_enabled'];
@@ -76,49 +78,16 @@ def importDatasets():
     
     return users, user_class, tweets
 
-def buildDesignMatrix(users, tweets):
-    ## Add friend-follower ratio as a feature
-    users['friend_follower_ratio'] = users['friends_count']/users['followers_count']
-    ## Remove divide-by-0 errors
-    users.loc[~np.isfinite(users['friend_follower_ratio']), 'friend_follower_ratio'] = np.nan
-
-    ## Add average-per-tweet information
-    averages = tweets[['num_hashtags','retweet_count','favorite_count','num_mentions','num_urls','user_id']].groupby('user_id').mean()
-    ## Reply count is sometimes blank -- replace with 0's
-    averages = averages.fillna(0)
-    users = users.join(averages.add_suffix('_per_tweet'))
-
-    ## Add number of unique places where the user has tweeted.  
-    # This will be 0 if no places have ever been tagged
-    users['unique_tweet_places'] = tweets.groupby('user_id').place.nunique()
-
-    ## Add: Variance in the user's number of tweets per hour.
-    tweets['date'] = tweets.timestamp_dt.dt.date
-    tweets['hour'] = tweets.timestamp_dt.dt.hour
-    variance_in_bot_tweet_rate = tweets.groupby(['user_id','date','hour']).size().groupby('user_id').var()
-    variance_in_bot_tweet_rate.rename('variance_in_tweet_rate',inplace=True)
-    users = users.join(variance_in_bot_tweet_rate)
-
-    ## Feature selection code should go here (slimming down the users tables)
-    X = users[['favourites_count','followers_count','friends_count','verified','friend_follower_ratio','num_hashtags_per_tweet','retweet_count_per_tweet','favorite_count_per_tweet','num_mentions_per_tweet','num_urls_per_tweet','unique_tweet_places','variance_in_tweet_rate']]
-    X['verified'] = X['verified'].fillna(0)
-    
-    return X
-
 def main():
     
     ## importData
     users, user_class, tweets = importDatasets()
     
     ## Build the design matrix
-    X = buildDesignMatrix(users, tweets)
+    X = build_design_matrix.buildDesignMatrix(users, tweets, 1)
     
-    ## Split into Test, Train, Dev datasets
-    
-    ## Find location rid of null values
-    iNotNull = pd.notnull(X).all(1).nonzero()[0]
-    
-    X_train, X_train_dev, y_train, y_train_dev = train_test_split(X.iloc[iNotNull], user_class.iloc[iNotNull], test_size=0.2)
+    ## Split into Train, Train-Dev datasets
+    X_train, X_train_dev, y_train, y_train_dev = train_test_split(X, user_class, test_size=0.2)
     
     pickle.dump(X_train, open( "X_train.p", "wb" ))
     pickle.dump(X_train_dev, open( "X_train_dev.p", "wb" ))
@@ -126,3 +95,4 @@ def main():
     pickle.dump(y_train_dev, open( "y_train_dev.p", "wb" ))
 
 # To run - main()
+main()

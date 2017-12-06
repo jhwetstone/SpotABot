@@ -14,7 +14,6 @@ import load_data
 from sklearn.model_selection import train_test_split
 
 
-
 def loadZafarTestData(path):
 
     filenames = os.listdir(path);
@@ -143,16 +142,16 @@ def main():
     path = 'classification_processed';
     y_z = loadTestData(path)
     test_users, test_tweets, y = downloadDatasets(y_z,devFlag=0)
+    
     # Remove users that have no associated tweets
     test_users = test_users[test_users.index.isin(test_tweets.set_index('user_id').index)]
     test_tweets.rename(columns={'num_user_mentions': 'num_mentions'},inplace=True)
     test_tweets['timestamp_dt'] = pd.to_datetime(test_tweets['created_at'],infer_datetime_format=True)
-    X_test_orig = load_data.buildDesignMatrix(test_users,test_tweets)
+    X_test = load_data.buildDesignMatrix(test_users,test_tweets)
     del y['is_active']
-    y_test_orig = y[y.index.isin(test_users.index)]
-            
-    iNotNull = pd.notnull(X_test_orig).all(1).nonzero()[0]
-    X_test, X_dev , y_test, y_dev = train_test_split(X_test_orig.iloc[iNotNull], y_test_orig.iloc[iNotNull], test_size=0.5)
+    y_test = y[y.index.isin(test_users.index)]
+
+    X_test, X_dev , y_test, y_dev = train_test_split(X_test, y_test, test_size=0.5)
     
     pickle.dump(X_test, open( "X_test.p", "wb" ))
     pickle.dump(y_test, open( "y_test.p", "wb" ))
@@ -160,6 +159,3 @@ def main():
     pickle.dump(X_dev, open( "X_dev.p", "wb" ))
     pickle.dump(y_dev, open( "y_dev.p", "wb" ))
     
-    ##FIXME: Still need to do the test/dev split
-
-main()
