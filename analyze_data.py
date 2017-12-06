@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import pickle
-from sklearn import linear_model, svm
+from sklearn import linear_model, svm, ensemble
 from sklearn.metrics import precision_score
 from sklearn.metrics import confusion_matrix
 
@@ -31,58 +31,69 @@ X_train_dev= pickle.load(open( "X_train_dev.p", "rb" ))
 logistic = linear_model.LogisticRegression()
 linear_svm = svm.LinearSVC();
 gaussian_svm = svm.SVC();
+gbm = ensemble.GradientBoostingClassifier(learning_rate=0.19)
 
 ## Application of fits (just two for now)
 logistic.fit(np.asmatrix(X_train),np.ravel(y_train))
 linear_svm.fit(np.asmatrix(X_train),np.ravel(y_train))
 gaussian_svm.fit(np.asmatrix(X_train),np.ravel(y_train))
+gbm.fit(np.asmatrix(X_train),np.ravel(y_train))
 
 ## Predicted classifications
 y_train_logistic = logistic.predict(X_train);
 y_train_linear_svm = linear_svm.predict(X_train);
 y_train_gaussian_svm = gaussian_svm.predict(X_train);
+y_train_gbm = gbm.predict(X_train);
 y_train_dev_logistic = logistic.predict(X_train_dev);
 y_train_dev_linear_svm = linear_svm.predict(X_train_dev);
 y_train_dev_gaussian_svm = gaussian_svm.predict(X_train_dev);
+y_train_dev_gbm = gbm.predict(X_train_dev);
 y_dev_logistic = logistic.predict(X_dev);
 y_dev_linear_svm = linear_svm.predict(X_dev);
 y_dev_gaussian_svm = gaussian_svm.predict(X_dev);
+y_dev_gbm = gbm.predict(X_dev);
 
 ## Precision score (true positives)
 train_precision = [precision_score(y_train,y_train_logistic),
                precision_score(y_train,y_train_linear_svm),
-               precision_score(y_train,y_train_gaussian_svm)]
+               precision_score(y_train,y_train_gaussian_svm),
+               precision_score(y_train,y_train_gbm)]
 
 train_dev_precision = [precision_score(y_train_dev,y_train_dev_logistic),
                precision_score(y_train_dev,y_train_dev_linear_svm),
-               precision_score(y_train_dev,y_train_dev_gaussian_svm)]
+               precision_score(y_train_dev,y_train_dev_gaussian_svm),
+               precision_score(y_train_dev,y_train_dev_gbm)]
 
 dev_precision = [precision_score(y_dev,y_dev_logistic),
                precision_score(y_dev,y_dev_linear_svm),
-               precision_score(y_dev,y_dev_gaussian_svm)]
+               precision_score(y_dev,y_dev_gaussian_svm),
+               precision_score(y_dev,y_dev_gbm)]
 
 ## Training/dev accuracy
 train_error = [logistic.score(X_train,y_train),
                linear_svm.score(X_train,y_train),
-               gaussian_svm.score(X_train,y_train)]
+               gaussian_svm.score(X_train,y_train),
+               gbm.score(X_train,y_train)]
 
 train_dev_error = [logistic.score(X_train_dev,y_train_dev),
              linear_svm.score(X_train_dev,y_train_dev),
-             gaussian_svm.score(X_train_dev,y_train_dev)]
+             gaussian_svm.score(X_train_dev,y_train_dev),
+             gbm.score(X_train_dev,y_train_dev)]
 
 dev_error = [logistic.score(X_dev,y_dev),
              linear_svm.score(X_dev,y_dev),
-             gaussian_svm.score(X_dev,y_dev)]
+             gaussian_svm.score(X_dev,y_dev),
+             gbm.score(X_dev,y_dev)]
 
 #)
 
 print( pd.DataFrame(data = [train_error, train_precision, train_dev_error, train_dev_precision, dev_error, dev_precision]
                     ,index = ['Training Accuracy','Training Precision', 'Train Dev Accuracy', 'Train Dev Precision', 'Dev Accuracy','Dev Precision']
-                    ,columns = ['Logistic Regression', 'Linear SVM', 'Gaussian SVM'])
+                    ,columns = ['Logistic Regression', 'Linear SVM', 'Gaussian SVM', 'GBM'])
 )    
 
 ## Save our final model (For "check_screenname.py")
-pickle.dump(logistic,open("model.p","wb"))
+pickle.dump(gbm,open("model.p","wb"))
 
 ### Print coefficients
 coeffs = np.insert(logistic.coef_,0,logistic.intercept_)
