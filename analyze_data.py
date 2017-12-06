@@ -14,6 +14,8 @@ import pickle
 from sklearn import linear_model, svm, ensemble
 from sklearn.metrics import precision_score
 from sklearn.metrics import confusion_matrix
+from sklearn.metrics import fbeta_score
+from sklearn.metrics import recall_score
 
 ## Load our test, train, dev objects
 X_train = pickle.load(open( "X_train.p", "rb" ))
@@ -26,74 +28,63 @@ y_train_dev = pickle.load(open( "y_train_dev.p", "rb" ))
 X_train_dev= pickle.load(open( "X_train_dev.p", "rb" ))
 
 
+BETA = 0.5
+datasets = {}
+datasets['Train'] = {'Actuals': y_train, 'Design Matrix': X_train}
+datasets['Train Dev'] = {'Actuals': y_train_dev, 'Design Matrix': X_train_dev}
+datasets['Dev'] = {'Actuals': y_dev, 'Design Matrix': X_dev}
+
+models = {}
 
 ## Creation of model objects
-logistic = linear_model.LogisticRegression()
-linear_svm = svm.LinearSVC();
-gaussian_svm = svm.SVC();
-gbm = ensemble.GradientBoostingClassifier(learning_rate=0.19)
+logistic = linear_model.LogisticRegression(C=0.79)
+models['Logistic']={'model': logistic}
+linear_svm = svm.LinearSVC()
+models['Linear SVM']={'model': linear_svm}
+gaussian_svm = svm.SVC(C=55);
+models['Gaussian SVM'] = {'model': gaussian_svm}
+gbm = ensemble.GradientBoostingClassifier(learning_rate=0.22,n_estimators=100)
+models['GBM'] = {'model': gbm}
 
-## Application of fits (just two for now)
-logistic.fit(np.asmatrix(X_train),np.ravel(y_train))
-linear_svm.fit(np.asmatrix(X_train),np.ravel(y_train))
-gaussian_svm.fit(np.asmatrix(X_train),np.ravel(y_train))
-gbm.fit(np.asmatrix(X_train),np.ravel(y_train))
+## Application of fits 
+for model_name, model_object in models.items():
+    model = model_object['model']
+    model.fit(np.asmatrix(X_train),np.ravel(y_train))
 
 ## Predicted classifications
-y_train_logistic = logistic.predict(X_train);
-y_train_linear_svm = linear_svm.predict(X_train);
-y_train_gaussian_svm = gaussian_svm.predict(X_train);
-y_train_gbm = gbm.predict(X_train);
-y_train_dev_logistic = logistic.predict(X_train_dev);
-y_train_dev_linear_svm = linear_svm.predict(X_train_dev);
-y_train_dev_gaussian_svm = gaussian_svm.predict(X_train_dev);
-y_train_dev_gbm = gbm.predict(X_train_dev);
-y_dev_logistic = logistic.predict(X_dev);
-y_dev_linear_svm = linear_svm.predict(X_dev);
-y_dev_gaussian_svm = gaussian_svm.predict(X_dev);
-y_dev_gbm = gbm.predict(X_dev);
-
-## Precision score (true positives)
-train_precision = [precision_score(y_train,y_train_logistic),
-               precision_score(y_train,y_train_linear_svm),
-               precision_score(y_train,y_train_gaussian_svm),
-               precision_score(y_train,y_train_gbm)]
-
-train_dev_precision = [precision_score(y_train_dev,y_train_dev_logistic),
-               precision_score(y_train_dev,y_train_dev_linear_svm),
-               precision_score(y_train_dev,y_train_dev_gaussian_svm),
-               precision_score(y_train_dev,y_train_dev_gbm)]
-
-dev_precision = [precision_score(y_dev,y_dev_logistic),
-               precision_score(y_dev,y_dev_linear_svm),
-               precision_score(y_dev,y_dev_gaussian_svm),
-               precision_score(y_dev,y_dev_gbm)]
-
-## Training/dev accuracy
-train_error = [logistic.score(X_train,y_train),
-               linear_svm.score(X_train,y_train),
-               gaussian_svm.score(X_train,y_train),
-               gbm.score(X_train,y_train)]
-
-train_dev_error = [logistic.score(X_train_dev,y_train_dev),
-             linear_svm.score(X_train_dev,y_train_dev),
-             gaussian_svm.score(X_train_dev,y_train_dev),
-             gbm.score(X_train_dev,y_train_dev)]
-
-dev_error = [logistic.score(X_dev,y_dev),
-             linear_svm.score(X_dev,y_dev),
-             gaussian_svm.score(X_dev,y_dev),
-             gbm.score(X_dev,y_dev)]
+for model_name, model_object in models.items():
+    model = model_object['model']
+    for dataset_name, dataset in datasets.items():
+        model_object[dataset_name + ' Result'] = model.predict(dataset['Design Matrix'])
+        model_object[dataset_name + ' Accuracy'] = model.score(dataset['Design Matrix'],dataset['Actuals'])
+    
+## Calculate scores
+for model_name, model_object in models.items():
+    model = model_object['model']
+    for dataset_name, dataset in datasets.items():
+        model_object[dataset_name + ' Precision'] = precision_score(dataset['Actuals'], model_object[dataset_name + ' Result'])
+        model_object[dataset_name + ' Recall'] = recall_score(dataset['Actuals'], model_object[dataset_name + ' Result'])
+        model_object[dataset_name + ' F Score'] = fbeta_score(dataset['Actuals'], model_object[dataset_name + ' Result'], BETA)
 
 #)
+reporting_fields = ['Accuracy','Precision','Recall','F Score']
+data = []
+index = []
+for dataset_name, dataset_object in datasets.items():
+    for rfield in reporting_fields:
+        data.append([models[model_name][dataset_name + ' ' + rfield] for model_name in models])
+        index.append(dataset_name + ' ' + rfield)
 
-print( pd.DataFrame(data = [train_error, train_precision, train_dev_error, train_dev_precision, dev_error, dev_precision]
-                    ,index = ['Training Accuracy','Training Precision', 'Train Dev Accuracy', 'Train Dev Precision', 'Dev Accuracy','Dev Precision']
-                    ,columns = ['Logistic Regression', 'Linear SVM', 'Gaussian SVM', 'GBM'])
+print( pd.DataFrame(data = data
+                    ,index = index
+                    ,columns = [model_name for model_name in models])
 )    
 
+best_model = [(model_name, model_object['model']) for model_name, model_object in models.items() if model_object['Dev F Score'] == np.max([model_object['Dev F Score'] for model_name, model_object in models.items()])][0]
+
+print('Saving the ' + best_model[0] + ' model to model.p')
 ## Save our final model (For "check_screenname.py")
-pickle.dump(gbm,open("model.p","wb"))
+pickle.dump(best_model[1],open("model.p","wb"))
 
 ### Print coefficients
 coeffs = np.insert(logistic.coef_,0,logistic.intercept_)

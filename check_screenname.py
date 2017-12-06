@@ -43,15 +43,19 @@ while True:
             test_tweet_list.append(status_dict)
         if len(test_tweet_list) == 0:
             print("Sorry, this user doesn't have any tweets yet! Please try again.")
-            break
+            continue
         test_tweets = pd.DataFrame(test_tweet_list)
         test_tweets.set_index('id',inplace=True)
         test_tweets.rename(columns={'num_user_mentions': 'num_mentions'},inplace=True)
         test_tweets['timestamp_dt'] = pd.to_datetime(test_tweets['created_at'],infer_datetime_format=True)
         X_test = build_design_matrix.buildDesignMatrix(test_user,test_tweets)
-        scores = model.predict_proba(X_test)
-        print("There is a %d%% chance that %s is a bot" % (scores[0][1] * 100, screen_name))
-            
+        if model.probability:
+            scores = model.predict_proba(X_test)
+            print("There is a %d%% chance that %s is a bot" % (scores[0][1] * 100, screen_name))
+        elif model.predict(X_test) == 1:
+            print("%s is a bot" % screen_name)
+        else:
+            print("%s is a human" % screen_name)
     ## Catch errors
     except tweepy.TweepError as e:
         if e.api_code == 50 or e.api_code == 63:
