@@ -52,7 +52,7 @@ def loadZafarTestData(path):
     
     return X, y
 
-def loadTestData(path):
+def loadTestData():
     
     filename = 'varol-2017.dat'
     df_file = pd.read_csv(filename, sep='\t',header = None)
@@ -140,16 +140,18 @@ def downloadDatasets(y_z, devFlag=1):
     return test_users, test_tweets, y
 
 def main():
-    path = 'classification_processed';
-    y_z = loadTestData(path)
-    test_users, test_tweets, y = downloadDatasets(y_z,devFlag=0)
-    print('Pickling test users')
-    pickle.dump(test_users, open( "test_users.p", "wb" ))
-    print('Pickling test y')
-    pickle.dump(y, open("test_y.p","wb"))
-    print('Pickling test tweets')
-    pickle.dump(test_tweets, open("test_tweets.p","wb"))
+    #y_z = loadTestData()
+    #test_users, test_tweets, y = downloadDatasets(y_z,devFlag=0)
+    #print('Pickling test users')
+    #pickle.dump(test_users, open( "test_users.p", "wb" ))
+    #print('Pickling test y')
+    #pickle.dump(y, open("test_y.p","wb"))
+    #print('Pickling test tweets')
+    #pickle.dump(test_tweets, open("test_tweets.p","wb"))
     
+    test_users = pickle.load(open( "test_users.p", "rb" ))
+    y = pickle.load(open( "test_y.p", "rb" ))
+    test_tweets = pickle.load(open( "test_tweets.p", "rb" ))
     
     # Remove users that have no associated tweets
     test_users = test_users[test_users.index.isin(test_tweets.set_index('user_id').index)]
@@ -158,13 +160,13 @@ def main():
     X_test = build_design_matrix.buildDesignMatrix(test_users,test_tweets)
     del y['is_active']
     y_test = y[y.index.isin(test_users.index)]
-
+    
     X_test, X_dev , y_test, y_dev = train_test_split(X_test, y_test, test_size=0.5)
     
-    #pickle.dump(X_test, open( "X_test.p", "wb" ))
-    #pickle.dump(y_test, open( "y_test.p", "wb" ))
+    pickle.dump(X_test, open( "X_test.p", "wb" ))
+    pickle.dump(y_test, open( "y_test.p", "wb" ))
     
-    #pickle.dump(X_dev, open( "X_dev.p", "wb" ))
-   # pickle.dump(y_dev, open( "y_dev.p", "wb" ))
+    pickle.dump(X_dev, open( "X_dev.p", "wb" ))
+    pickle.dump(y_dev, open( "y_dev.p", "wb" ))
     
 main()

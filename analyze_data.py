@@ -37,13 +37,13 @@ datasets['Dev'] = {'Actuals': y_dev, 'Design Matrix': X_dev}
 models = {}
 
 ## Creation of model objects
-logistic = linear_model.LogisticRegression(C=0.79)
+logistic = linear_model.LogisticRegression(C=2.02)
 models['Logistic']={'model': logistic}
 linear_svm = svm.LinearSVC()
 models['Linear SVM']={'model': linear_svm}
-gaussian_svm = svm.SVC(C=55);
+gaussian_svm = svm.SVC(C=86.85);
 models['Gaussian SVM'] = {'model': gaussian_svm}
-gbm = ensemble.GradientBoostingClassifier(learning_rate=0.22,n_estimators=100)
+gbm = ensemble.GradientBoostingClassifier(learning_rate=0.245,n_estimators=100)
 models['GBM'] = {'model': gbm}
 
 ## Application of fits 
