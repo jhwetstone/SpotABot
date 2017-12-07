@@ -10,7 +10,7 @@ import pandas as pd
 import tweepy
 import tweepy_utils
 import pickle
-import load_data
+import build_design_matrix
 from sklearn.model_selection import train_test_split
 
 
@@ -76,7 +76,8 @@ def downloadDatasets(y_z, devFlag=1):
     ## FIRST: Download all user information for users who are still active on Twitter (accounts have not been deactivated or suspended)
     
     ## Download users
-    user_columns = ['id','friends_count','favourites_count','geo_enabled','name','screen_name','statuses_count','verified','followers_count']
+    user_columns = ['id','friends_count','favourites_count','geo_enabled','name','screen_name','statuses_count','verified','followers_count',
+                    'default_profile','default_profile_image','description','has_extended_profile','profile_background_color','statuses_count','listed_count','url']
     
     test_user_list = [];
     # is_active column keeps track of the users who are still active on twitter
@@ -109,7 +110,7 @@ def downloadDatasets(y_z, devFlag=1):
     
     ## NEXT: Download tweets corresponding to the active users
     test_tweet_list = []
-    tweet_columns = ['id','favorite_count','retweet_count','created_at','text']
+    tweet_columns = ['id','favorite_count','retweet_count','created_at','text','lang','retweeted','source']
     tweet_entities = ['hashtags','urls','user_mentions']
     cursor = 1
     for user_id in test_users.index:
@@ -142,20 +143,28 @@ def main():
     path = 'classification_processed';
     y_z = loadTestData(path)
     test_users, test_tweets, y = downloadDatasets(y_z,devFlag=0)
+    print('Pickling test users')
+    pickle.dump(test_users, open( "test_users.p", "wb" ))
+    print('Pickling test y')
+    pickle.dump(y, open("test_y.p","wb"))
+    print('Pickling test tweets')
+    pickle.dump(test_tweets, open("test_tweets.p","wb"))
+    
     
     # Remove users that have no associated tweets
     test_users = test_users[test_users.index.isin(test_tweets.set_index('user_id').index)]
     test_tweets.rename(columns={'num_user_mentions': 'num_mentions'},inplace=True)
     test_tweets['timestamp_dt'] = pd.to_datetime(test_tweets['created_at'],infer_datetime_format=True)
-    X_test = load_data.buildDesignMatrix(test_users,test_tweets)
+    X_test = build_design_matrix.buildDesignMatrix(test_users,test_tweets)
     del y['is_active']
     y_test = y[y.index.isin(test_users.index)]
 
     X_test, X_dev , y_test, y_dev = train_test_split(X_test, y_test, test_size=0.5)
     
-    pickle.dump(X_test, open( "X_test.p", "wb" ))
-    pickle.dump(y_test, open( "y_test.p", "wb" ))
+    #pickle.dump(X_test, open( "X_test.p", "wb" ))
+    #pickle.dump(y_test, open( "y_test.p", "wb" ))
     
-    pickle.dump(X_dev, open( "X_dev.p", "wb" ))
-    pickle.dump(y_dev, open( "y_dev.p", "wb" ))
+    #pickle.dump(X_dev, open( "X_dev.p", "wb" ))
+   # pickle.dump(y_dev, open( "y_dev.p", "wb" ))
     
+main()
