@@ -61,6 +61,9 @@ while True:
         if e.api_code == 50 or e.api_code == 63:
             print("Sorry, " + screen_name + " is not a valid screen name.  Please try again.")
             continue
+        if e.reason == "Not authorized.":
+            print("Sorry, we are not authorized to view " + screen_name + "'s tweets.  Please try a different screen name.")
+            continue
         else:
             print('Error: ' + str(e.api_code) + ' ' + e.reason )
             print("Uh oh - we've experienced an error! Please try again.")

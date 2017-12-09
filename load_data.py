@@ -29,10 +29,10 @@ def importDatasets():
     list_genuine_tweets = []
     for folder in genuine_account_folders:
         df_users = pd.read_csv(folder+'/users.csv',index_col='id');
-        df_users['source'] = folder; 
+        df_users['source_f'] = folder; 
         list_genuine_users.append(df_users);
         df_tweets = pd.read_csv(folder+'/tweets.csv',index_col='id');
-        df_tweets['source'] = folder; 
+        df_tweets['source_f'] = folder; 
         list_genuine_tweets.append(df_tweets);
     genuine_tweets = pd.concat(list_genuine_tweets)
     genuine_users = pd.concat(list_genuine_users)
@@ -41,10 +41,10 @@ def importDatasets():
     list_bot_tweets = []
     for folder in bot_account_folders:
         df_users = pd.read_csv(folder+'/users.csv',index_col='id');
-        df_users['source'] = folder;
+        df_users['source_f'] = folder;
         list_bot_users.append(df_users);    
         df_tweets = pd.read_csv(folder+'/tweets.csv',index_col='id');
-        df_tweets['source'] = folder;
+        df_tweets['source_f'] = folder;
         list_bot_tweets.append(df_tweets);
     bot_tweets = pd.concat(list_bot_tweets)
     bot_users = pd.concat(list_bot_users)
@@ -95,4 +95,4 @@ def main():
     pickle.dump(y_train_dev, open( "y_train_dev.p", "wb" ))
 
 # To run - main()
-main()
+#main()
