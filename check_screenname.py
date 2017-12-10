@@ -49,7 +49,7 @@ while True:
         test_tweets.rename(columns={'num_user_mentions': 'num_mentions'},inplace=True)
         test_tweets['timestamp_dt'] = pd.to_datetime(test_tweets['created_at'],infer_datetime_format=True)
         X_test = build_design_matrix.buildDesignMatrix(test_user,test_tweets)
-        if model.probability:
+        if hasattr(model,'probability') and model.probability:
             scores = model.predict_proba(X_test)
             print("There is a %d%% chance that %s is a bot" % (scores[0][1] * 100, screen_name))
         elif model.predict(X_test) == 1:

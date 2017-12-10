@@ -33,6 +33,7 @@ datasets = {}
 datasets['Train'] = {'Actuals': y_train, 'Design Matrix': X_train}
 datasets['Train Dev'] = {'Actuals': y_train_dev, 'Design Matrix': X_train_dev}
 datasets['Dev'] = {'Actuals': y_dev, 'Design Matrix': X_dev}
+datasets['Test'] = {'Actuals': y_test, 'Design Matrix': X_test}
 
 models = {}
 
