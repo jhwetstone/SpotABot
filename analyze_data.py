@@ -16,6 +16,9 @@ from sklearn.metrics import precision_score
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import fbeta_score
 from sklearn.metrics import recall_score
+from sklearn.metrics import average_precision_score
+from sklearn.metrics import precision_recall_curve
+
 
 ## Load our test, train, dev objects
 X_train = pickle.load(open( "X_train.p", "rb" ))
@@ -68,8 +71,8 @@ for model_name, model_object in models.items():
         model_object[dataset_name + ' Precision'] = precision_score(dataset['Actuals'], model_object[dataset_name + ' Result'])
         model_object[dataset_name + ' Recall'] = recall_score(dataset['Actuals'], model_object[dataset_name + ' Result'])
         model_object[dataset_name + ' F Score'] = fbeta_score(dataset['Actuals'], model_object[dataset_name + ' Result'], BETA)
-
 #)
+
 reporting_fields = ['Accuracy','Precision','Recall','F Score']
 data = []
 index = []
@@ -82,6 +85,34 @@ print( pd.DataFrame(data = data
                     ,index = index
                     ,columns = [model_name for model_name in models])
 )    
+
+plt.figure(figsize=(10, 7))
+for model_name, model_object in models.items():
+    if model_name in ('Logistic','GBM','Neural Net'):
+        actuals = datasets['Test']['Actuals']
+        model = model_object['model']
+        if hasattr(model,'decision_function'):
+            predicted = model.decision_function(datasets['Test']['Design Matrix'])
+        else:
+            predicted = model.predict_proba(datasets['Test']['Design Matrix'])[:,1];
+        
+        average_precision = average_precision_score(actuals,predicted)
+        precision, recall, _ = precision_recall_curve(actuals,predicted)
+        plt.step(recall, precision, where='post',label= model_name + ': AUPRC={0:0.2f}'.format(
+          average_precision)) 
+        #plt.fill_between(recall, precision, step='post', alpha=0.2,
+                      #  color='b')
+    
+
+plt.title('Precision-Recall curves')
+plt.xlabel('Recall')
+plt.ylabel('Precision')
+plt.ylim([0.0, 1.05])
+plt.xlim([0.0, 1.0])
+ax=plt.subplot(111)
+handles, labels = ax.get_legend_handles_labels()
+ax.legend(handles,labels)
+plt.savefig("precision-recall")
 
 best_model = [(model_name, model_object['model']) for model_name, model_object in models.items() if model_object['Dev F Score'] == np.max([model_object['Dev F Score'] for model_name, model_object in models.items()])][0]
 
