@@ -2,3 +2,7 @@ cresci-2017
 cresci-2015
 *.csv
 settings.py
+.DS_Store
+.ipynb_checkpoints/
+__pycache__/
+

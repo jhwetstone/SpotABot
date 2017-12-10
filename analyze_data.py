@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import pickle
-from sklearn import linear_model, svm, ensemble
+from sklearn import linear_model, svm, ensemble, neural_network
 from sklearn.metrics import precision_score
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import fbeta_score
@@ -45,6 +45,8 @@ gaussian_svm = svm.SVC(C=86.85);
 models['Gaussian SVM'] = {'model': gaussian_svm}
 gbm = ensemble.GradientBoostingClassifier(learning_rate=0.245,n_estimators=100)
 models['GBM'] = {'model': gbm}
+neural_net = neural_network.MLPClassifier(solver = 'lbfgs', alpha = 0.01, random_state=1, hidden_layer_sizes=(3,4))
+models['Neural Net'] = {'model': neural_net}
 
 ## Application of fits 
 for model_name, model_object in models.items():

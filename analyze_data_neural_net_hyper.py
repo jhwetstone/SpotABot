@@ -14,6 +14,9 @@ import pickle
 from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import PredefinedSplit
+from sklearn.metrics import fbeta_score, make_scorer
+from sklearn.metrics import make_scorer
+
 
 ## Load our test, train, dev objects
 X_train = pickle.load(open( "X_train.p", "rb" ))
@@ -37,11 +40,12 @@ param_grid = {'hidden_layer_sizes':layer_sizes}
 X = pd.concat((X_train, X_dev));
 y = pd.concat((y_train, y_dev));
 nn = MLPClassifier(solver = 'lbfgs', alpha = 0.01, random_state=1);
-#test_fold = np.concatenate((-np.ones(len(X_train)), np.ones(len(X_dev))))
-#ps = PredefinedSplit(test_fold)
-#clf = GridSearchCV(nn, param_grid, cv = ps)
-#clf.fit(np.asmatrix(X),np.ravel(y))
-#pickle.dump(clf,open("hyper_neural_network.p", "wb"))
+test_fold = np.concatenate((-np.ones(len(X_train)), np.ones(len(X_dev))))
+ps = PredefinedSplit(test_fold)
+scorer = make_scorer(lambda y_true,y_pred: (fbeta_score(y_true,y_pred,0.5)));
+clf = GridSearchCV(nn, param_grid, cv = ps, scoring = scorer, return_train_score=True);
+clf.fit(np.asmatrix(X),np.ravel(y))
+pickle.dump(clf,open("hyper_neural_network.p", "wb"))
 clf = pickle.load(open("hyper_neural_network.p", "rb"))
 train_acc = clf.cv_results_['split0_train_score']
 dev_acc = clf.cv_results_['split0_test_score']
