@@ -5,4 +5,5 @@ settings.py
 .DS_Store
 .ipynb_checkpoints/
 __pycache__/
-
+cresci_classifier.p
+precision-recall.png

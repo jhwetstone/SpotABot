@@ -86,7 +86,8 @@ print( pd.DataFrame(data = data
                     ,columns = [model_name for model_name in models])
 )    
 
-plt.figure(figsize=(10, 7))
+plt.axes().set_aspect('equal');
+plt.figure(figsize=(4.65,4.17))
 for model_name, model_object in models.items():
     if model_name in ('Logistic','GBM','Neural Net'):
         actuals = datasets['Test']['Actuals']
@@ -98,17 +99,16 @@ for model_name, model_object in models.items():
         
         average_precision = average_precision_score(actuals,predicted)
         precision, recall, _ = precision_recall_curve(actuals,predicted)
-        plt.step(recall, precision, where='post',label= model_name + ': AUPRC={0:0.2f}'.format(
+        plt.step(recall, precision, where='post', label= model_name + ': AUPRC={0:0.2f}'.format(
           average_precision)) 
         #plt.fill_between(recall, precision, step='post', alpha=0.2,
-                      #  color='b')
-    
-
-plt.title('Precision-Recall curves')
-plt.xlabel('Recall')
-plt.ylabel('Precision')
-plt.ylim([0.0, 1.05])
+#                        color='b')
+plt.xlabel('Recall', fontname = 'Calibri', fontsize=16, )
+plt.ylabel('Precision', fontname = 'Calibri', fontsize=16)
+plt.ylim([0.0, 1.0])
 plt.xlim([0.0, 1.0])
+plt.xticks(fontsize=10);
+plt.yticks(fontsize=10);
 ax=plt.subplot(111)
 handles, labels = ax.get_legend_handles_labels()
 ax.legend(handles,labels)
@@ -129,7 +129,7 @@ df = df.reindex(df['logistic coefficients'].abs().sort_values().index)
 print(df)
 
 
-## Some other really cool shit that isn't ready yet
+# Some other really cool shit that isn't ready yet
 #def scatter_x1x2(categ1, categ2):
 #
 #    X_pos = X_train.iloc[np.ravel(y_train == 1)]

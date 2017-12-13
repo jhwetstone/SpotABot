@@ -15,6 +15,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import fbeta_score, make_scorer
 from sklearn.model_selection import GridSearchCV, PredefinedSplit
 from sklearn.neural_network import MLPClassifier
+from sklearn.ensemble import GradientBoostingClassifier
 
 ###############################################################################
 
@@ -31,13 +32,13 @@ def get_merged_data():
     
     return X, y, groups;
 
-def getModelsOfPartitions(X_t, y_t, X_d, y_d, ft_list, fd_list, modelConstructor, args):
-    models = np.empty((len(ft_list), len(fd_list)), dtype=object);
-    for i in range(0,len(ft_list)):
-        for j in range(0,len(fd_list)):
+def getModelsOfPartitions(X_t, y_t, X_d, y_d, ft_grid, fd_grid, modelConstructor, args):
+    models = np.empty(np.shape(ft_grid), dtype=object);
+    for i in range(0,len(models)):
+        for j in range(0,len(np.transpose(models))):
             
-            ft = ft_list[i];
-            fd = fd_list[j];
+            ft = ft_grid[i,j];
+            fd = fd_grid[i,j];
         
             X_train, y_train, X_dev, y_dev = \
                 repartitionExamples(X_t, y_t, X_d, y_d, ft, fd)
@@ -46,13 +47,15 @@ def getModelsOfPartitions(X_t, y_t, X_d, y_d, ft_list, fd_list, modelConstructor
             model.fit(np.asmatrix(X_train), np.ravel(y_train));
             models[i,j] = model;
             
+            
+            
     return models;
 
 def mapFromModelGrid(f, grid):
     (m, n) = np.shape(grid);
     out = np.empty((m, n), dtype = float);
     for i in range(0,m):
-        for j in range(0,m):
+        for j in range(0,n):
             out[i,j] = f(grid[i,j]);
     return out;
 
@@ -83,7 +86,8 @@ def repartitionExamples(X_t, y_t, X_d, y_d, perc_t, perc_d):
     pt_d1 = [order_d[i] for i in range(0, i_d)];
     pt_d2 = [order_d[i] for i in range(i_d+1, m_d)];
     
-    X_t_new = pd.concat((X_t.iloc[pt_t], X_d.iloc[pt_d1])) 
+    X_t_new = pd.concat((X_t.iloc[pt_t], X_d.iloc[pt_d1]))     
+    
     y_t_new = pd.concat((y_t.iloc[pt_t], y_d.iloc[pt_d1])) 
     X_d_new = X_d.iloc[pt_d2];
     y_d_new = y_d.iloc[pt_d2];
@@ -130,30 +134,32 @@ else:
 #plt.colorbar();
 
  
-## Partitioning data (old)
+# Partitioning data (old)
 
-#X_train = pickle.load(open( "X_train.p", "rb" ));
-#y_train = pickle.load(open( "y_train.p", "rb" ));
-#X_dev = pickle.load(open( "X_dev.p", "rb" ));
-#y_dev = pickle.load(open( "y_dev.p", "rb" ));
-#
-#ft_list = np.arange(.1,1,.1);
-#fd_list = np.arange(0,.9,.1);
-#ft_grid, fd_grid = np.meshgrid(ft_list, fd_list)
-#models = getModelsOfPartitions(X_train, y_train, X_dev, y_dev, ft_list, fd_list, linear_model.LogisticRegression, dict(C=0.79));
-#
-#BETA = 0.5;
-#fscoreFun = lambda m: fbeta_score(m.predict(X_dev), np.ravel(y_dev), BETA);
-#fscores = mapFromModelGrid(fscoreFun, models);
-#
-#plt.axes().set_aspect('equal');
-#plt.pcolor(ft_grid, fd_grid, fscores);
-#plt.title('F-Score vs. Partitions of Datasets');
-#plt.xlabel('Fraction of Original Training Set');
-#plt.ylabel('Fraction of Original Dev Set');
-#plt.colorbar();
-#
-#X_dev2 = pickle.load(open( "X_test.p", "rb" ));
-#y_dev2 = pickle.load(open( "y_test.p", "rb" ));
-    
+X_train = pickle.load(open( "X_train.p", "rb" ));
+y_train = pickle.load(open( "y_train.p", "rb" ));
+X_dev = pickle.load(open( "X_dev.p", "rb" ));
+y_dev = pickle.load(open( "y_dev.p", "rb" ));
 
+ft_list = np.arange(.1,1,.1);
+#ft_list = np.ones((9,1))
+fd_list = np.arange(.001,.901,.1);
+ft_grid, fd_grid = np.meshgrid(ft_list, fd_list);
+
+
+args = dict(learning_rate=0.245,n_estimators=100);
+#args = dict(solver = 'lbfgs', alpha = 0.01, random_state=1, hidden_layer_sizes=(3,4));
+models = getModelsOfPartitions(X_train, y_train, X_dev, y_dev, ft_grid, fd_grid, GradientBoostingClassifier, args);
+
+BETA = 0.5;
+fscoreFun = lambda m: fbeta_score(np.ravel(y_dev), m.predict(X_dev), beta=BETA);
+fscores = mapFromModelGrid(fscoreFun, models);
+
+plt.figure(figsize=(5,5))
+plt.axes().set_aspect('equal');
+plt.pcolor(ft_grid, fd_grid, fscores);
+plt.xlabel('% Original Training Set', fontname='Calibri', fontsize=16);
+plt.ylabel('% Original Dev Set', fontname='Calibri', fontsize=16);
+plt.xticks(fontsize=10);
+plt.yticks(fontsize=10);
+plt.colorbar();
