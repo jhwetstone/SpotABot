@@ -42,15 +42,15 @@ access_token = "PASTED ACCESS TOKEN HERE"
 access_token_secret = "PASTED ACCESS TOKEN SECRET HERE"
 ```
 
-## Models & Analysis: 
+## Models & Analysis 
 1. regularization_hyper_tuning.py: for tuning hyperparameters
 1. analyze_data.py: primary results module
 1. explore_distribution_mismatch.py: test adding examples from dev dataset to training to explore distribution mismatch hypothesis
 1. pca.py: run pca on the test and train distributions
 
-## Application Prototype:
-You must have Tweepy installed (see above) for this to work.
-1. check_screenname.py: Enter Twitter username when prompted
+## Application Prototype: check_screenname.py
+1. You must have Tweepy installed (see above) for this to work.
+1. Run the file, and enter Twitter usernames when prompted
 
 ## Shared Files
 1. tweepy_utils.py
