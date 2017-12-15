@@ -11,14 +11,14 @@ import matplotlib.pyplot as plt
 import pickle
 from mpl_toolkits.mplot3d import Axes3D;
 
-X_train = pickle.load(open( "X_train.p", "rb" ))
-y_train = pickle.load(open( "y_train.p", "rb" ))
-y_train_dev = pickle.load(open( "y_train_dev.p", "rb" ))
-X_train_dev= pickle.load(open( "X_train_dev.p", "rb" ))
-X_test = pickle.load(open( "X_test.p", "rb" ))
-y_test = pickle.load(open( "y_test.p", "rb" ))
-X_dev = pickle.load(open( "X_dev.p", "rb" ))
-y_dev = pickle.load(open( "y_dev.p", "rb" ))
+X_train = pickle.load(open( "pickleFiles/X_train.p", "rb" ))
+y_train = pickle.load(open( "pickleFiles/y_train.p", "rb" ))
+y_train_dev = pickle.load(open( "pickleFiles/y_train_dev.p", "rb" ))
+X_train_dev= pickle.load(open( "pickleFiles/X_train_dev.p", "rb" ))
+X_test = pickle.load(open( "pickleFiles/X_test.p", "rb" ))
+y_test = pickle.load(open( "pickleFiles/y_test.p", "rb" ))
+X_dev = pickle.load(open( "pickleFiles/X_dev.p", "rb" ))
+y_dev = pickle.load(open( "pickleFiles/y_dev.p", "rb" ))
 
 X1 = np.concatenate((np.asarray(X_train), np.asarray(X_train_dev)))
 y1 = np.concatenate((np.ravel(y_train), np.ravel(y_train_dev)))

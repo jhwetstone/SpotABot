@@ -14,7 +14,7 @@ import build_design_matrix
 
 
 api = tweepy_utils.connect_to_api()
-model = pickle.load(open("model.p", "rb"))
+model = pickle.load(open("pickleFiles/model.p", "rb"))
 
 while True:
     screen_name=input("Enter the screen name to check: ")
@@ -56,6 +56,7 @@ while True:
             print("%s is a bot" % screen_name)
         else:
             print("%s is a human" % screen_name)
+    
     ## Catch errors
     except tweepy.TweepError as e:
         if e.api_code == 50 or e.api_code == 63:
