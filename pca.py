@@ -9,6 +9,7 @@ Created on Wed Dec 13 11:20:35 2017
 import numpy as np
 import matplotlib.pyplot as plt
 import pickle
+from mpl_toolkits.mplot3d import Axes3D;
 
 X_train = pickle.load(open( "X_train.p", "rb" ))
 y_train = pickle.load(open( "y_train.p", "rb" ))
