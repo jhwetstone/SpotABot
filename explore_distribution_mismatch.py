@@ -11,7 +11,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import pickle
 from random import shuffle
-from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import fbeta_score, make_scorer
 from sklearn.model_selection import GridSearchCV, PredefinedSplit
 from sklearn.neural_network import MLPClassifier
@@ -21,10 +20,10 @@ from sklearn.ensemble import GradientBoostingClassifier
 
 def get_merged_data():
     
-    X1 = np.asarray(pickle.load(open( "X_train.p", "rb" )));
-    X2 = np.asarray(pickle.load(open( "X_dev.p", "rb" )));
-    y1 = np.ravel(pickle.load(open( "y_train.p", "rb" )));
-    y2 = np.ravel(pickle.load(open( "y_dev.p", "rb" )));
+    X1 = np.asarray(pickle.load(open( "pickleFiles/X_train.p", "rb" )));
+    X2 = np.asarray(pickle.load(open( "pickleFiles/X_dev.p", "rb" )));
+    y1 = np.ravel(pickle.load(open( "pickleFiles/y_train.p", "rb" )));
+    y2 = np.ravel(pickle.load(open( "pickleFiles/y_dev.p", "rb" )));
 
     X = np.concatenate((X1,X2));
     y = np.concatenate((y1,y2));
@@ -106,18 +105,18 @@ X, y, test_fold = get_merged_data();
 max_layers = 20;
 layersize_tuples = [(i,j) for i in range(1,max_layers+1) for j in range(1,max_layers+1)];
 
-if not os.path.isfile('nn_model.p'):
+if not os.path.isfile('pickleFiles/nn_model.p'):
     model = hyper_fit( \
             X, y, 
             MLPClassifier, 
             PredefinedSplit(test_fold),
             {"solver":'lbfgs', 'alpha':0.01, 'random_state':1}, 
             {'hidden_layer_sizes':[(i,j) for i in range(1,max_layers+1) for j in range(1,max_layers+1)]},
-            "nn_model.p"
+            "pickleFiles/nn_model.p"
     );
     
 else:
-    model = pickle.load(open("nn_model.p", "rb"));
+    model = pickle.load(open("pickleFiles/nn_model.p", "rb"));
     
 
 #layer1size_list = layer2size_list = range(1,max_layers+1);
@@ -136,10 +135,10 @@ else:
  
 # Partitioning data (old)
 
-X_train = pickle.load(open( "X_train.p", "rb" ));
-y_train = pickle.load(open( "y_train.p", "rb" ));
-X_dev = pickle.load(open( "X_dev.p", "rb" ));
-y_dev = pickle.load(open( "y_dev.p", "rb" ));
+X_train = pickle.load(open( "pickleFiles/X_train.p", "rb" ));
+y_train = pickle.load(open( "pickleFiles/y_train.p", "rb" ));
+X_dev = pickle.load(open( "pickleFiles/X_dev.p", "rb" ));
+y_dev = pickle.load(open( "pickleFiles/y_dev.p", "rb" ));
 
 ft_list = np.arange(.1,1,.1);
 #ft_list = np.ones((9,1))
