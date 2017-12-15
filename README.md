@@ -13,15 +13,17 @@ Code for CS 229 Project I Spot a Bot
 * tweepy_utils.py: utility code for using the tweepy wrapper for the Twitter API
 
 ## Getting Started: Downloading Data
+1. Create a folder called "data" in the SpotABot directory
+
 ### Training Data
 1. Download cresci-2017.csv.zip from https://botometer.iuni.iu.edu/bot-repository/datasets.html
-1. Unzip each of the files into the SpotABot directory, in a folder labeled 'cresci-2017'
+1. Unzip each of the files into SpotABot/data, in a new folder labeled 'cresci-2017'
 1. Download cresci-2015.csv.zip from https://botometer.iuni.iu.edu/bot-repository/datasets.html
-1. Unzip each of the files into the SpotABot directory, in a folder labeled 'cresci-2015'
+1. Unzip each of the files into SpotABot/data, in a folder labeled 'cresci-2015'
 
 ### Dev / Test Data
 1. Download varol-2017 from https://botometer.iuni.iu.edu/bot-repository/datasets.html
-1. Unzip into the SpotABot directory, in a file called 'varol-2017.dat'
+1. Unzip into SpotABot/data in a file called 'varol-2017.dat'
 
 ## Prepare Datasets
 
@@ -40,14 +42,15 @@ access_token = "PASTED ACCESS TOKEN HERE"
 access_token_secret = "PASTED ACCESS TOKEN SECRET HERE"
 ```
 
-## Models & Analysis: 
+## Models & Analysis 
 1. regularization_hyper_tuning.py: for tuning hyperparameters
 1. analyze_data.py: primary results module
-1. explore_distribution_mismatch.py
-1. pca.py
+1. explore_distribution_mismatch.py: test adding examples from dev dataset to training to explore distribution mismatch hypothesis
+1. pca.py: run pca on the test and train distributions
 
-## Application Prototype:
-1. check_screenname.py: Enter Twitter username when prompted
+## Application Prototype: check_screenname.py
+1. You must have Tweepy installed (see above) for this to work.
+1. Run the file, and enter Twitter usernames when prompted
 
 ## Shared Files
 1. tweepy_utils.py
