@@ -39,10 +39,10 @@ def buildDesignMatrix(users, tweets, trainFlag=0):
     if trainFlag == 1:
         scaler = StandardScaler()
         scaler = scaler.fit(X)
-        pickle.dump(scaler, open("scaler.p","wb"))
+        pickle.dump(scaler, open("pickleFiles/scaler.p","wb"))
         X.loc[:,:] = scaler.transform(X)
     else:
-        scaler = pickle.load(open("scaler.p","rb"))
+        scaler = pickle.load(open("pickleFiles/scaler.p","rb"))
         X.loc[:,:] = scaler.transform(X)
     
     return X
