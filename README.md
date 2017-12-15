@@ -49,6 +49,7 @@ access_token_secret = "PASTED ACCESS TOKEN SECRET HERE"
 1. pca.py: run pca on the test and train distributions
 
 ## Application Prototype:
+You must have Tweepy installed (see above) for this to work.
 1. check_screenname.py: Enter Twitter username when prompted
 
 ## Shared Files
