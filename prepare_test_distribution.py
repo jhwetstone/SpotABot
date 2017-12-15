@@ -13,48 +13,9 @@ import pickle
 import build_design_matrix
 from sklearn.model_selection import train_test_split
 
-
-def loadZafarTestData(path):
-
-    filenames = os.listdir(path);
-    popularity_class_dict = {'1k':1 ,'100k':2,'1M':3,'10M':4};
-    
-    #    print('Importing Zafar\'s processed classification datasets:')
-    df = pd.DataFrame();
-    for f in filenames:
-        
-    #        print('\t{0}'.format(f));
-        df_file = pd.read_csv(path+'/'+f, index_col='screen_name');
-        
-        # Add "is_bot" label, depending on substring within filename
-        if f.find('bots') == 0:
-            df_file['is_bot'] = 1;
-        else:
-            df_file['is_bot'] = 0;
-            
-        # Add "popularity class" feature, depending on substring within filename
-        df_file['popularity_class'] = popularity_class_dict[f.split('.')[-2]];
-        
-        df = pd.concat([df, df_file]);
-    #    print('Complete!\n')
-        
-    # Sort by index alphabetically
-    df = df.sort_index(); 
-    
-    # Move "is_bot" and "popularity_class" to the front of other columns
-    df = df[list(df)[-2:] + list(df)[:-2]];
-    
-    # Remove duplicates (which have been classified as both a bot and a human)
-    df = df[~df.index.duplicated(keep='first')]
-    
-    X = df[df.columns.difference(['is_bot', 'source_identity'])];
-    y = df['is_bot'];
-    
-    return X, y
-
 def loadTestData():
     
-    filename = 'varol-2017.dat'
+    filename = 'data/varol-2017.dat'
     df_file = pd.read_csv(filename, sep='\t',header = None)
     
     df_file.rename(columns={0: 'id', 1: 'is_bot'},inplace=True)
@@ -140,18 +101,18 @@ def downloadDatasets(y_z, devFlag=1):
     return test_users, test_tweets, y
 
 def main():
-    #y_z = loadTestData()
-    #test_users, test_tweets, y = downloadDatasets(y_z,devFlag=0)
-    #print('Pickling test users')
-    #pickle.dump(test_users, open( "test_users.p", "wb" ))
-    #print('Pickling test y')
-    #pickle.dump(y, open("test_y.p","wb"))
-    #print('Pickling test tweets')
-    #pickle.dump(test_tweets, open("test_tweets.p","wb"))
+    y_z = loadTestData()
+    test_users, test_tweets, y = downloadDatasets(y_z,devFlag=0)
+    print('Pickling test users')
+    pickle.dump(test_users, open( "test_users.p", "wb" ))
+    print('Pickling test y')
+    pickle.dump(y, open("test_y.p","wb"))
+    print('Pickling test tweets')
+    pickle.dump(test_tweets, open("test_tweets.p","wb"))
     
-    test_users = pickle.load(open( "test_users.p", "rb" ))
-    y = pickle.load(open( "test_y.p", "rb" ))
-    test_tweets = pickle.load(open( "test_tweets.p", "rb" ))
+    #test_users = pickle.load(open( "test_users.p", "rb" ))
+    #y = pickle.load(open( "test_y.p", "rb" ))
+    #test_tweets = pickle.load(open( "test_tweets.p", "rb" ))
     
     # Remove users that have no associated tweets
     test_users = test_users[test_users.index.isin(test_tweets.set_index('user_id').index)]
@@ -163,10 +124,10 @@ def main():
     
     X_test, X_dev , y_test, y_dev = train_test_split(X_test, y_test, test_size=0.5)
     
-    pickle.dump(X_test, open( "X_test.p", "wb" ))
-    pickle.dump(y_test, open( "y_test.p", "wb" ))
+    pickle.dump(X_test, open( "pickleFiles/X_test.p", "wb" ))
+    pickle.dump(y_test, open( "pickleFiles/y_test.p", "wb" ))
     
-    pickle.dump(X_dev, open( "X_dev.p", "wb" ))
-    pickle.dump(y_dev, open( "y_dev.p", "wb" ))
+    pickle.dump(X_dev, open( "pickleFiles/X_dev.p", "wb" ))
+    pickle.dump(y_dev, open( "pickleFiles/y_dev.p", "wb" ))
     
 main()
