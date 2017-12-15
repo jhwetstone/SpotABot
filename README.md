@@ -4,14 +4,17 @@ Code for CS 229 Project I Spot a Bot
 Working Doc: https://docs.google.com/document/d/1zYeQP1R2YI-tIu8YIyi-dPNhKB_qhv_8BlvgJGwR8Po/edit
 
 ## Getting Started: Downloading Data
+### Training Data
 1. Download cresci-2017.csv.zip from https://botometer.iuni.iu.edu/bot-repository/datasets.html
 1. Unzip each of the files into the SpotABot directory, in a folder labeled 'cresci-2017'
 1. Download cresci-2015.csv.zip from https://botometer.iuni.iu.edu/bot-repository/datasets.html
 1. Unzip each of the files into the SpotABot directory, in a folder labeled 'cresci-2015'
-1. Download classification_processed.zip from http://www.cl.cam.ac.uk/~szuhg2/data.html
-1. Unzip into the SpotABot directory, in a folder labeled 'classification_processed'
 
-## Prepare Datasets: 
+### Dev / Test Data
+1. Download varol-2017 from https://botometer.iuni.iu.edu/bot-repository/datasets.html
+1. Unzip into the SpotABot directory, in a file called 'varol-2017.dat'
+
+## Prepare Datasets
 
 ### Training data: load_data.py
 1. Combines datasets, generate features, and saves into train/test/dev pickle files

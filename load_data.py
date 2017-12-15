@@ -21,9 +21,6 @@ def importDatasets():
                             , 'cresci-2017/social_spambots_2.csv'
                             , 'cresci-2017/social_spambots_3.csv'
                             , 'cresci-2017/traditional_spambots_1.csv']
-                            #, 'cresci-2015/INT.csv'
-                            #, 'cresci-2015/FSF.csv'
-                            #, 'cresci-2015/TWT.csv']
     
     list_genuine_users = []
     list_genuine_tweets = []
