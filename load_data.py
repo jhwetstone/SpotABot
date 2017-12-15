@@ -15,12 +15,12 @@ import build_design_matrix
 
 def importDatasets():
     ## Import datasets
-    genuine_account_folders = ['cresci-2017/genuine_accounts.csv', 'cresci-2015/TFP.csv', 'cresci-2015/E13.csv']
+    genuine_account_folders = ['data/cresci-2017/genuine_accounts.csv', 'data/cresci-2015/TFP.csv', 'data/cresci-2015/E13.csv']
     bot_account_folders = [
-                             'cresci-2017/social_spambots_1.csv'
-                            , 'cresci-2017/social_spambots_2.csv'
-                            , 'cresci-2017/social_spambots_3.csv'
-                            , 'cresci-2017/traditional_spambots_1.csv']
+                             'data/cresci-2017/social_spambots_1.csv'
+                            , 'data/cresci-2017/social_spambots_2.csv'
+                            , 'data/cresci-2017/social_spambots_3.csv'
+                            , 'data/cresci-2017/traditional_spambots_1.csv']
     
     list_genuine_users = []
     list_genuine_tweets = []
@@ -86,10 +86,10 @@ def main():
     ## Split into Train, Train-Dev datasets
     X_train, X_train_dev, y_train, y_train_dev = train_test_split(X, user_class, test_size=0.2)
     
-    pickle.dump(X_train, open( "X_train.p", "wb" ))
-    pickle.dump(X_train_dev, open( "X_train_dev.p", "wb" ))
-    pickle.dump(y_train, open( "y_train.p", "wb" ))
-    pickle.dump(y_train_dev, open( "y_train_dev.p", "wb" ))
+    pickle.dump(X_train, open( "pickleFiles/X_train.p", "wb" ))
+    pickle.dump(X_train_dev, open( "pickleFiles/X_train_dev.p", "wb" ))
+    pickle.dump(y_train, open( "pickleFiles/y_train.p", "wb" ))
+    pickle.dump(y_train_dev, open( "pickleFiles/y_train_dev.p", "wb" ))
 
 # To run - main()
 #main()
