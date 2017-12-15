@@ -1,7 +1,17 @@
 # SpotABot
 Code for CS 229 Project I Spot a Bot
 
-Working Doc: https://docs.google.com/document/d/1zYeQP1R2YI-tIu8YIyi-dPNhKB_qhv_8BlvgJGwR8Po/edit
+## File index
+* analyze_data.py: trains models and outputs results & scores, generates AUPRC curves
+* analyze_data_logistic_hyper.py:
+* analyze_data_neural_net_hyper.py:
+* build_design_matrix.py: code for generating a design matrix from raw inputs (From csv files or twitter API)
+* build_test_distribution.py:	downloads fresh tweets and user profile info from the Twitter API for annotated test distribution usernames
+* check_screenname.py: Scores twitter handle input from user
+* hyperanalyze_data.py
+* load_data.py: code for loading and combining training datasets
+* pca.py	file
+* tweepy_utils.py: utility code for using the tweepy wrapper for the Twitter API
 
 ## Getting Started: Downloading Data
 ### Training Data
